@@ -1,4 +1,4 @@
-const API_BASE = " https://patchguard-backend.onrender.com";
+const API_BASE = "https://patchguard-backend.onrender.com"; // replace with your real backend URL
 
 let severityChartInstance = null;
 let complianceChartInstance = null;
@@ -6,13 +6,16 @@ let topRiskChartInstance = null;
 
 async function runAnalysis() {
   try {
-    document.body.style.opacity = "0.8";
+    document.body.style.opacity = "0.85";
 
     await fetch(`${API_BASE}/analyze`, {
       method: "POST"
     });
 
-    await refreshAll();
+    await loadDashboard();
+    const risks = await loadRisks();
+    await loadAlerts();
+    renderCharts(risks);
   } catch (error) {
     alert("Error running analysis. Check backend connection.");
     console.error(error);
@@ -21,11 +24,63 @@ async function runAnalysis() {
   }
 }
 
-async function refreshAll() {
-  await loadDashboard();
-  const risks = await loadRisks();
-  await loadAlerts();
-  renderCharts(risks);
+async function resetDashboard() {
+  try {
+    await fetch(`${API_BASE}/reset-analysis`, {
+      method: "POST"
+    });
+  } catch (error) {
+    console.error("Reset API error:", error);
+  }
+
+  document.getElementById("totalSystems").innerText = 0;
+  document.getElementById("totalSoftware").innerText = 0;
+  document.getElementById("outdatedSoftware").innerText = 0;
+  document.getElementById("criticalAlerts").innerText = 0;
+  document.getElementById("highRiskSystems").innerText = 0;
+  document.getElementById("compliance").innerText = "0%";
+
+  document.getElementById("riskTableBody").innerHTML = "";
+  document.getElementById("alertTableBody").innerHTML = "";
+
+  clearCharts();
+  closeModal();
+}
+
+function clearCharts() {
+  if (severityChartInstance) {
+    severityChartInstance.destroy();
+    severityChartInstance = null;
+  }
+
+  if (complianceChartInstance) {
+    complianceChartInstance.destroy();
+    complianceChartInstance = null;
+  }
+
+  if (topRiskChartInstance) {
+    topRiskChartInstance.destroy();
+    topRiskChartInstance = null;
+  }
+
+  const severityCanvas = document.getElementById("severityChart");
+  const complianceCanvas = document.getElementById("complianceChart");
+  const topRiskCanvas = document.getElementById("topRiskChart");
+
+  if (severityCanvas) {
+    const ctx = severityCanvas.getContext("2d");
+    ctx.clearRect(0, 0, severityCanvas.width, severityCanvas.height);
+  }
+
+  if (complianceCanvas) {
+    const ctx = complianceCanvas.getContext("2d");
+    ctx.clearRect(0, 0, complianceCanvas.width, complianceCanvas.height);
+  }
+
+  if (topRiskCanvas) {
+    const ctx = topRiskCanvas.getContext("2d");
+    ctx.clearRect(0, 0, topRiskCanvas.width, topRiskCanvas.height);
+  }
 }
 
 async function loadDashboard() {
@@ -55,6 +110,8 @@ async function loadRisks() {
     data.forEach(item => {
       const row = document.createElement("tr");
       const severityClass = (item.severity || "low").toLowerCase();
+
+      row.onclick = () => showDetails(item);
 
       row.innerHTML = `
         <td>${item.hostname}</td>
@@ -105,7 +162,7 @@ async function loadAlerts() {
 
 function renderCharts(risks) {
   renderSeverityChart(risks);
-  renderComplianceChart(risks);
+  renderComplianceChart();
   renderTopRiskChart(risks);
 }
 
@@ -150,7 +207,7 @@ function renderSeverityChart(risks) {
   });
 }
 
-function renderComplianceChart(risks) {
+function renderComplianceChart() {
   const totalSoftware = Number(document.getElementById("totalSoftware").innerText) || 0;
   const outdated = Number(document.getElementById("outdatedSoftware").innerText) || 0;
   const updated = Math.max(totalSoftware - outdated, 0);
@@ -225,4 +282,37 @@ function renderTopRiskChart(risks) {
   });
 }
 
-refreshAll();
+function showDetails(item) {
+  const modal = document.getElementById("detailsModal");
+  const content = document.getElementById("modalContent");
+
+  content.innerHTML = `
+    <p><b>Hostname:</b> ${item.hostname}</p>
+    <p><b>Software:</b> ${item.software_name}</p>
+    <p><b>Installed Version:</b> ${item.installed_version}</p>
+    <p><b>Latest Version:</b> ${item.latest_version}</p>
+    <p><b>Days Outdated:</b> ${item.days_outdated}</p>
+    <p><b>Risk Score:</b> ${item.risk_score}</p>
+    <p><b>Severity:</b> ${item.severity}</p>
+    <p><b>Predicted High Risk:</b> ${item.predicted_high_risk ? "Yes" : "No"}</p>
+  `;
+
+  modal.style.display = "block";
+}
+
+function closeModal() {
+  const modal = document.getElementById("detailsModal");
+  if (modal) {
+    modal.style.display = "none";
+  }
+}
+
+window.onclick = function(event) {
+  const modal = document.getElementById("detailsModal");
+  if (event.target === modal) {
+    closeModal();
+  }
+};
+
+// Start with empty dashboard
+resetDashboard();

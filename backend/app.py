@@ -318,7 +318,14 @@ def dashboard_summary():
         "predicted_high_risk_systems": predicted_high_risk,
         "patch_compliance_percent": compliance
     })
-
+@app.route("/reset-analysis", methods=["POST"])
+def reset_analysis():
+    conn = get_db_connection()
+    conn.execute("DELETE FROM risk_analysis")
+    conn.execute("DELETE FROM alerts")
+    conn.commit()
+    conn.close()
+    return jsonify({"message": "Analysis reset successfully"})
 
 import os
 

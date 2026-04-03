@@ -139,6 +139,7 @@ td {
 
 tr:hover {
   background: #f3f4f6;
+  cursor: pointer;
 }
 
 /* Severity badges */
@@ -178,6 +179,55 @@ tr:hover {
   display: inline-block;
 }
 
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.modal-content {
+  background: white;
+  margin: 8% auto;
+  padding: 25px;
+  width: 60%;
+  max-width: 700px;
+  border-radius: 14px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.modal-content p {
+  margin: 10px 0;
+  font-size: 16px;
+  color: #111827;
+}
+
+.close {
+  float: right;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: red;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 /* Responsive */
 @media (max-width: 992px) {
   .cards {
@@ -191,6 +241,10 @@ tr:hover {
   .chart-card.full-width {
     grid-column: span 1;
   }
+
+  .modal-content {
+    width: 85%;
+  }
 }
 
 @media (max-width: 600px) {
@@ -201,5 +255,9 @@ tr:hover {
   button {
     margin-bottom: 10px;
     width: 100%;
+  }
+
+  .modal-content {
+    width: 92%;
   }
 }
