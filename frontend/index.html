@@ -2,75 +2,110 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>PatchGuard Dashboard</title>
+
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
   <div class="container">
-    <h1>PatchGuard Dashboard</h1>
+    <h1><i class="fas fa-shield-alt"></i> PatchGuard Dashboard</h1>
 
     <div class="top-actions">
-      <button onclick="runAnalysis()">Run Analysis</button>
-      <button onclick="loadDashboard()">Refresh Dashboard</button>
+      <button onclick="runAnalysis()">
+        <i class="fas fa-play"></i> Run Analysis
+      </button>
+      <button onclick="refreshAll()">
+        <i class="fas fa-sync"></i> Refresh
+      </button>
     </div>
 
     <div class="cards">
       <div class="card">
-        <h3>Total Systems</h3>
+        <h3><i class="fas fa-server"></i> Total Systems</h3>
         <p id="totalSystems">0</p>
       </div>
+
       <div class="card">
-        <h3>Total Software</h3>
+        <h3><i class="fas fa-cubes"></i> Total Software</h3>
         <p id="totalSoftware">0</p>
       </div>
+
       <div class="card">
-        <h3>Outdated Software</h3>
+        <h3><i class="fas fa-exclamation-triangle"></i> Outdated</h3>
         <p id="outdatedSoftware">0</p>
       </div>
+
       <div class="card">
-        <h3>Critical Alerts</h3>
+        <h3><i class="fas fa-bug"></i> Critical Alerts</h3>
         <p id="criticalAlerts">0</p>
       </div>
+
       <div class="card">
-        <h3>High Risk Predictions</h3>
+        <h3><i class="fas fa-fire"></i> High Risk</h3>
         <p id="highRiskSystems">0</p>
       </div>
+
       <div class="card">
-        <h3>Patch Compliance %</h3>
+        <h3><i class="fas fa-chart-line"></i> Compliance</h3>
         <p id="compliance">0%</p>
       </div>
     </div>
 
+    <h2>Analytics</h2>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>Severity Distribution</h3>
+        <canvas id="severityChart"></canvas>
+      </div>
+
+      <div class="chart-card">
+        <h3>Patch Compliance</h3>
+        <canvas id="complianceChart"></canvas>
+      </div>
+
+      <div class="chart-card full-width">
+        <h3>Top Risky Systems</h3>
+        <canvas id="topRiskChart"></canvas>
+      </div>
+    </div>
+
     <h2>Risk Analysis Results</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Hostname</th>
-          <th>Software</th>
-          <th>Installed</th>
-          <th>Latest</th>
-          <th>Days Outdated</th>
-          <th>Risk Score</th>
-          <th>Severity</th>
-          <th>Predicted High Risk</th>
-        </tr>
-      </thead>
-      <tbody id="riskTableBody"></tbody>
-    </table>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Hostname</th>
+            <th>Software</th>
+            <th>Installed</th>
+            <th>Latest</th>
+            <th>Days</th>
+            <th>Risk</th>
+            <th>Severity</th>
+            <th>Prediction</th>
+          </tr>
+        </thead>
+        <tbody id="riskTableBody"></tbody>
+      </table>
+    </div>
 
     <h2>Alerts</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Hostname</th>
-          <th>Message</th>
-          <th>Severity</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody id="alertTableBody"></tbody>
-    </table>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Hostname</th>
+            <th>Message</th>
+            <th>Severity</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="alertTableBody"></tbody>
+      </table>
+    </div>
   </div>
 
   <script src="script.js"></script>
